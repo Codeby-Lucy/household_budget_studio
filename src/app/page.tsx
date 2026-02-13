@@ -468,7 +468,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div className="space-y-2">
+                <div key={b.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:w-full">
                   {input.bills.map((b) => (
                     <div key={b.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
                       <input
@@ -481,12 +481,12 @@ export default function Home() {
                         type="number"
                         value={b.amount}
                         onChange={(e) => updateBill(b.id, { amount: num(e.target.value) })}
-                        className={inputCompact}
-                        placeholder={currency}
+                        className={`${inputCompact} sm:flex-shrink-0`} // Ensure shrink behavior for mobile
+                        placeholder="SEK"
                       />
                       <button
                         onClick={() => removeBill(b.id)}
-                        className={`${buttonDanger} px-2 py-1 shrink-0`}
+                        className={`${buttonDanger} sm:w-auto sm:px-2 sm:py-1 shrink-0`} // shrink button
                         aria-label="Remove bill"
                       >
                         ✕
