@@ -9,13 +9,15 @@ import { uid } from "@/lib/budget/ui";
 import { addPlan, loadPlans, removePlan, SavedPlan } from "@/lib/budget/storage";
 import { encodePlan } from "@/lib/budget/share";
 
+type Currency = "SEK" | "EUR";
+
 // Currency formatting used across the UI.
-// Kept here (not in the engine) to keep calculation logic framework-agnostic.
-function formatSEK(n: number) {
+function formatMoney(n: number, currency: Currency) {
   if (!Number.isFinite(n)) return "-";
-  return new Intl.NumberFormat("sv-SE", {
+  const locale = currency === "SEK" ? "sv-SE" : "de-DE"; // Use 'de-DE' for EUR for dot separator
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "SEK",
+    currency,
     maximumFractionDigits: 0,
   }).format(n);
 }
@@ -53,15 +55,6 @@ const buttonPrimary =
 
 const buttonDanger =
   "rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-red-100 hover:bg-red-500/15 focus:outline-none focus:ring-2 focus:ring-red-400/30";
-
-const pillGroup =
-  "inline-flex rounded-xl border border-white/10 bg-black/20 p-1";
-
-const pillButton = (active: boolean) =>
-  `rounded-lg px-3 py-2 text-sm transition border ${active
-    ? "border-indigo-500/30 bg-indigo-500/15 text-indigo-100"
-    : "border-transparent text-zinc-300 hover:bg-white/5"
-  }`;
 
 const card =
   "rounded-2xl border border-white/10 bg-zinc-900/10 p-4 shadow-md";
@@ -180,9 +173,11 @@ export default function Home() {
   // (localStorage, clipboard, URL origin). Render only after mount.
   const [mounted, setMounted] = useState(false);
 
+  const [currency, setCurrency] = useState<Currency>("SEK");
+
   // UI state
-  const [template, setTemplate] = useState<TemplateKey>("couple");
-  const [input, setInput] = useState<BudgetInput>(() => getTemplate("couple"));
+  const [template, setTemplate] = useState<TemplateKey>("individual");
+  const [input, setInput] = useState<BudgetInput>(() => getTemplate("individual"));
 
   // Persistence (localStorage)
   const [saved, setSaved] = useState<SavedPlan[]>([]);
@@ -191,7 +186,16 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     setSaved(loadPlans());
+
+    const savedCurrency = localStorage.getItem("hbs_currency");
+    if (savedCurrency === "SEK" || savedCurrency === "EUR") {
+      setCurrency(savedCurrency);
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("hbs_currency", currency);
+  }, [currency]);
 
   // Derived result. Keeping compute in a pure engine makes it reusable (web now, mobile later).
   const result = useMemo(() => calculateBudget(input), [input]);
@@ -282,6 +286,7 @@ export default function Home() {
       <div className="absolute inset-0 -z-10 bg-black/30" />
 
       <div className="mx-auto max-w-6xl p-4 sm:p-6">
+        {/* HEADER */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.02em]">
@@ -292,12 +297,18 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex gap-2">
-            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200">
+          <div className="flex items-center gap-3">
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value as Currency)}
+              className={`${inputBase} bg-zinc-800/80 px-3 py-1 text-sm`}
+            >
+              <option value="SEK">SEK</option>
+              <option value="EUR">EUR</option>
+            </select>
+
+            <span className="hidden sm:inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200">
               Version 0.1
-            </span>
-            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200">
-              Local-first
             </span>
           </div>
         </div>
@@ -367,7 +378,7 @@ export default function Home() {
                         </button>
                         <button
                           onClick={() => onDeletePlan(p.id)}
-                          className={buttonDanger}
+                          className={`${buttonDanger} px-2 py-1 shrink-0`}
                           aria-label="Delete plan"
                         >
                           ✕
@@ -379,7 +390,7 @@ export default function Home() {
               </div>
 
               <label className="block mb-4">
-                <div className="text-sm text-zinc-300 mb-2">Income A (SEK / month)</div>
+                <div className="text-sm text-zinc-300 mb-2">Income A ({currency} / month)</div>
                 <input
                   type="number"
                   value={input.incomeA}
@@ -391,7 +402,7 @@ export default function Home() {
               {input.householdType === "couple" && (
                 <>
                   <label className="block mb-4">
-                    <div className="text-sm text-zinc-300 mb-2">Income B (SEK / month)</div>
+                    <div className="text-sm text-zinc-300 mb-2">Income B ({currency} / month)</div>
                     <input
                       type="number"
                       value={input.incomeB ?? 0}
@@ -419,16 +430,19 @@ export default function Home() {
               {/* Savings */}
               <div className={`mt-2 ${card}`}>
                 <div className="text-sm font-semibold mb-3">Savings</div>
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex items-center gap-2">
                   <select
                     value={input.savings.mode}
                     onChange={(e) =>
-                      setInput((prev) => ({ ...prev, savings: { ...prev.savings, mode: e.target.value as any } }))
+                      setInput((prev) => ({
+                        ...prev,
+                        savings: { ...prev.savings, mode: e.target.value as any },
+                      }))
                     }
-                    className={`flex-1 ${inputBase} bg-zinc-800/80 p-3`}
+                    className={`min-w-0 flex-1 ${inputBase} bg-zinc-800/80 p-3`}
                   >
                     <option value="percent">Percent</option>
-                    <option value="fixed">Fixed SEK</option>
+                    <option value="fixed">Fixed amount</option>
                   </select>
 
                   <input
@@ -440,7 +454,7 @@ export default function Home() {
                         savings: { ...prev.savings, value: num(e.target.value) },
                       }))
                     }
-                    className={`flex-1 ${inputBase} p-3`}
+                    className={`w-28 sm:w-32 shrink-0 ${inputBase} p-3`}
                   />
                 </div>
               </div>
@@ -468,7 +482,7 @@ export default function Home() {
                         value={b.amount}
                         onChange={(e) => updateBill(b.id, { amount: num(e.target.value) })}
                         className={inputCompact}
-                        placeholder="SEK"
+                        placeholder={currency}
                       />
                       <button
                         onClick={() => removeBill(b.id)}
@@ -482,7 +496,7 @@ export default function Home() {
                 </div>
 
                 <div className="mt-3 text-sm opacity-80">
-                  Total bills: <span className="font-semibold">{formatSEK(result.totalBills)}</span>
+                  Total bills: <span className="font-semibold">{formatMoney(result.totalBills, currency)}</span>
                 </div>
               </div>
 
@@ -513,7 +527,7 @@ export default function Home() {
                           value={c.amount}
                           onChange={(e) => updateCategory(c.id, { amount: num(e.target.value) })}
                           className={inputCompact}
-                          placeholder="SEK / month"
+                          placeholder={`${currency} / month`}
                         />
                         <button
                           onClick={() => removeCategory(c.id)}
@@ -525,14 +539,14 @@ export default function Home() {
                       </div>
 
                       <div className="text-xs opacity-70 pl-1">
-                        ≈ {formatSEK(perWeekRounded(c.amount))} / week
+                        ≈ {formatMoney(perWeekRounded(c.amount), currency)} / week
                       </div>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-3 text-sm opacity-80">
-                  Total categories: <span className="font-semibold">{formatSEK(result.totalCategoryBudgets)}</span>
+                  Total categories: <span className="font-semibold">{formatMoney(result.totalCategoryBudgets, currency)}</span>
                 </div>
               </div>
             </div>
@@ -555,29 +569,29 @@ export default function Home() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className={card}>
                   <div className="text-xs text-zinc-400">Total income</div>
-                  <div className="mt-1 text-lg font-semibold">{formatSEK(result.totalIncome)}</div>
+                  <div className="mt-1 text-lg font-semibold">{formatMoney(result.totalIncome, currency)}</div>
                 </div>
 
                 <div className={card}>
                   <div className="text-xs text-zinc-400">Bills</div>
-                  <div className="mt-1 text-lg font-semibold">{formatSEK(result.totalBills)}</div>
+                  <div className="mt-1 text-lg font-semibold">{formatMoney(result.totalBills, currency)}</div>
                 </div>
 
                 <div className={card}>
                   <div className="text-xs text-zinc-400">Savings</div>
-                  <div className="mt-1 text-lg font-semibold">{formatSEK(result.savingsAmount)}</div>
+                  <div className="mt-1 text-lg font-semibold">{formatMoney(result.savingsAmount, currency)}</div>
                 </div>
 
                 <div className={card}>
                   <div className="text-xs text-zinc-400">Safe to spend / week</div>
-                  <div className="mt-1 text-lg font-semibold">{formatSEK(result.safeToSpendPerWeek)}</div>
+                  <div className="mt-1 text-lg font-semibold">{formatMoney(result.safeToSpendPerWeek, currency)}</div>
                 </div>
               </div>
 
               <div className={`mt-4 ${card} flex items-center justify-between`}>
                 <div>
                   <div className="text-xs text-zinc-400">Remaining after categories</div>
-                  <div className="mt-1 text-lg font-semibold">{formatSEK(result.unallocated)}</div>
+                  <div className="mt-1 text-lg font-semibold">{formatMoney(result.unallocated, currency)}</div>
                 </div>
 
                 <span
@@ -596,7 +610,7 @@ export default function Home() {
                   {input.categories.map((c) => (
                     <div key={c.id} className="flex justify-between">
                       <span className="text-zinc-300">{c.name}</span>
-                      <span className="font-semibold">{formatSEK(perWeekRounded(c.amount))} / week</span>
+                      <span className="font-semibold">{formatMoney(perWeekRounded(c.amount), currency)} / week</span>
                     </div>
                   ))}
                 </div>
@@ -639,7 +653,7 @@ export default function Home() {
                   <ul className="mt-3 space-y-1 text-sm list-disc pl-5">
                     {result.couple.contributions.map((c) => (
                       <li key={c.person}>
-                        Person {c.person}: {formatSEK(c.fairBillContribution)} ({Math.round(c.incomeShare * 100)}%)
+                        Person {c.person}: {formatMoney(c.fairBillContribution, currency)} ({Math.round(c.incomeShare * 100)}%)
                       </li>
                     ))}
                   </ul>
