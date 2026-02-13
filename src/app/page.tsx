@@ -272,9 +272,9 @@ export default function Home() {
   }
 
   return (
-    <main className="relative min-h-screen text-zinc-100">
+    <main className="relative min-h-screen text-zinc-100 overflow-x-hidden">
       <div
-        className="absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+        className="fixed inset-0 -z-20 bg-cover bg-center"
         style={{ backgroundImage: "url('/background_image.jpg')" }}
       />
 
