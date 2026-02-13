@@ -470,27 +470,37 @@ export default function Home() {
 
                 <div>
                   {input.bills.map((b) => (
-                    <div key={b.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:w-full">
+                    <div
+                      key={b.id}
+                      className="flex flex-col gap-2 sm:flex-row sm:items-center"
+                    >
+                      {/* Name */}
                       <input
                         value={b.name}
                         onChange={(e) => updateBill(b.id, { name: e.target.value })}
-                        className={`flex-1 ${inputSmall}`}
+                        className={`w-full sm:flex-1 ${inputSmall}`}
                         placeholder="Bill name"
                       />
-                      <input
-                        type="number"
-                        value={b.amount}
-                        onChange={(e) => updateBill(b.id, { amount: num(e.target.value) })}
-                        className={`${inputCompact} sm:flex-shrink-0`} // Ensure shrink behavior for mobile
-                        placeholder="Amount"
-                      />
-                      <button
-                        onClick={() => removeBill(b.id)}
-                        className={`${buttonDanger} sm:w-auto sm:px-2 sm:py-1 shrink-0`} // Shrink button
-                        aria-label="Remove bill"
-                      >
-                        ✕
-                      </button>
+
+                      {/* Amount + delete (row on mobile, “flatten” on sm+) */}
+                      <div className="flex items-center gap-2 sm:contents">
+                        <input
+                          type="number"
+                          value={b.amount}
+                          onChange={(e) => updateBill(b.id, { amount: num(e.target.value) })}
+                          className={`${inputCompact} w-28 sm:w-32`}
+                          placeholder="Amount"
+                        />
+
+                        <button
+                          onClick={() => removeBill(b.id)}
+                          className={`${buttonDanger} w-10 px-0 py-2 shrink-0`}
+                          aria-label="Remove bill"
+                          type="button"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -500,7 +510,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Categories Section */}
+              {/* Categories */}
               <div className={`mt-4 ${card}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm font-semibold">Categories</div>
