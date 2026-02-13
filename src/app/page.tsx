@@ -468,9 +468,9 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div key={b.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:w-full">
+                <div>
                   {input.bills.map((b) => (
-                    <div key={b.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div key={b.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:w-full">
                       <input
                         value={b.name}
                         onChange={(e) => updateBill(b.id, { name: e.target.value })}
@@ -482,11 +482,11 @@ export default function Home() {
                         value={b.amount}
                         onChange={(e) => updateBill(b.id, { amount: num(e.target.value) })}
                         className={`${inputCompact} sm:flex-shrink-0`} // Ensure shrink behavior for mobile
-                        placeholder="SEK"
+                        placeholder="Amount"
                       />
                       <button
                         onClick={() => removeBill(b.id)}
-                        className={`${buttonDanger} sm:w-auto sm:px-2 sm:py-1 shrink-0`} // shrink button
+                        className={`${buttonDanger} sm:w-auto sm:px-2 sm:py-1 shrink-0`} // Shrink button
                         aria-label="Remove bill"
                       >
                         ✕
@@ -500,14 +500,11 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Categories */}
+              {/* Categories Section */}
               <div className={`mt-4 ${card}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm font-semibold">Categories</div>
-                  <button
-                    onClick={addCategory}
-                    className={`${buttonBase} py-1.5`}
-                  >
+                  <button onClick={addCategory} className={`${buttonBase} py-1.5`}>
                     + Add category
                   </button>
                 </div>
