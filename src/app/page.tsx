@@ -301,9 +301,9 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="mt-6 grid gap-4 md:grid-cols-2 items-start">
           {/* Inputs */}
-          <section className={panel}>
+          <section className={`${panel} min-w-0`}>
             <h2 className="text-lg font-medium mb-4 text-zinc-200">Monthly Setup</h2>
             <div className="space-y-4">
               <label className="block mb-4">
@@ -468,7 +468,7 @@ export default function Home() {
                       />
                       <button
                         onClick={() => removeBill(b.id)}
-                        className={`${buttonDanger} px-3 py-0`}
+                        className={`${buttonDanger} px-2 py-1 shrink-0`}
                         aria-label="Remove bill"
                       >
                         ✕
@@ -513,7 +513,7 @@ export default function Home() {
                         />
                         <button
                           onClick={() => removeCategory(c.id)}
-                          className={`${buttonDanger} px-3 py-0`}
+                          className={`${buttonDanger} px-2 py-1 shrink-0`}
                           aria-label="Remove category"
                         >
                           ✕
@@ -535,7 +535,7 @@ export default function Home() {
           </section>
 
           {/* Results */}
-          <section className={panel}>
+          <section className={`${panel} min-w-0`}>
             <h2 className="text-lg font-semibold mb-4">Monthly Overview</h2>
 
             <BudgetBars
