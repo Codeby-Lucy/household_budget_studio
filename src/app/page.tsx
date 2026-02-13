@@ -42,7 +42,7 @@ const inputBase =
 const inputFull = `w-full p-3 ${inputBase}`;
 const inputSmall = `p-2.5 ${inputBase}`;
 
-const inputCompact = `w-32 p-2.5 ${inputBase}`;
+const inputCompact = `w-full sm:w-32 p-2.5 ${inputBase}`;
 
 const buttonBase =
   "rounded-xl border border-white/10 px-3 py-2 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-white/20";
@@ -280,7 +280,7 @@ export default function Home() {
 
       <div className="absolute inset-0 -z-10 bg-black/30" />
 
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-6xl p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.02em]">
@@ -354,12 +354,12 @@ export default function Home() {
                 ) : (
                   <ul className="mt-3 space-y-2">
                     {saved.map((p) => (
-                      <li key={p.id} className="flex items-center justify-between gap-2">
+                      <li key={p.id} className="flex items-center justify-between gap-2 min-w-0">
                         <button
                           onClick={() => onLoadPlan(p)}
                           className={`text-left flex-1 ${buttonBase} bg-black/20`}
                         >
-                          <div className="text-sm font-medium">{p.name}</div>
+                          <div className="text-sm font-medium truncate">{p.name}</div>
                           <div className="text-xs opacity-60">
                             {new Date(p.createdAt).toLocaleString("sv-SE")}
                           </div>
@@ -452,7 +452,7 @@ export default function Home() {
 
                 <div className="space-y-2">
                   {input.bills.map((b) => (
-                    <div key={b.id} className="flex gap-2">
+                    <div key={b.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
                       <input
                         value={b.name}
                         onChange={(e) => updateBill(b.id, { name: e.target.value })}
@@ -497,7 +497,7 @@ export default function Home() {
                 <div className="space-y-2">
                   {input.categories.map((c) => (
                     <div key={c.id} className="flex flex-col gap-1 rounded-lg border border-white/5 p-2">
-                      <div className="flex gap-2">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <input
                           value={c.name}
                           onChange={(e) => updateCategory(c.id, { name: e.target.value })}
@@ -548,7 +548,7 @@ export default function Home() {
 
             <div className="space-y-4">
               {/* Summary cards */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className={card}>
                   <div className="text-xs text-zinc-400">Total income</div>
                   <div className="mt-1 text-lg font-semibold">{formatSEK(result.totalIncome)}</div>
