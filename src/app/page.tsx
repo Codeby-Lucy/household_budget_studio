@@ -42,7 +42,8 @@ const inputBase =
 const inputFull = `w-full p-3 ${inputBase}`;
 const inputSmall = `p-2.5 ${inputBase}`;
 
-const inputCompact = `w-full sm:w-32 p-2.5 ${inputBase}`;
+const inputCompact =
+  "w-28 sm:w-32 shrink-0 p-2.5 " + inputBase;
 
 const buttonBase =
   "rounded-xl border border-white/10 px-3 py-2 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-white/20";
@@ -274,7 +275,7 @@ export default function Home() {
   return (
     <main className="relative min-h-screen text-zinc-100 overflow-x-hidden">
       <div
-        className="fixed inset-0 -z-20 bg-cover bg-center"
+        className="fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/background_image.jpg')" }}
       />
 
@@ -301,7 +302,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 items-start">
+        <div className="mt-6 grid gap-4 grid-cols-1 md:grid-cols-2 items-start">
           {/* Inputs */}
           <section className={`${panel} min-w-0`}>
             <h2 className="text-lg font-medium mb-4 text-zinc-200">Monthly Setup</h2>
@@ -334,7 +335,7 @@ export default function Home() {
                   Generates a read-only link.
                 </p>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <input
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
@@ -343,7 +344,7 @@ export default function Home() {
                   />
                   <button
                     onClick={onSavePlan}
-                    className={buttonBase}
+                    className={`${buttonBase} sm:w-auto w-full`}
                   >
                     Save
                   </button>
@@ -418,7 +419,7 @@ export default function Home() {
               {/* Savings */}
               <div className={`mt-2 ${card}`}>
                 <div className="text-sm font-semibold mb-3">Savings</div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <select
                     value={input.savings.mode}
                     onChange={(e) =>
@@ -434,7 +435,10 @@ export default function Home() {
                     type="number"
                     value={input.savings.value}
                     onChange={(e) =>
-                      setInput((prev) => ({ ...prev, savings: { ...prev.savings, value: num(e.target.value) } }))
+                      setInput((prev) => ({
+                        ...prev,
+                        savings: { ...prev.savings, value: num(e.target.value) },
+                      }))
                     }
                     className={`flex-1 ${inputBase} p-3`}
                   />
@@ -497,7 +501,7 @@ export default function Home() {
                 <div className="space-y-2">
                   {input.categories.map((c) => (
                     <div key={c.id} className="flex flex-col gap-1 rounded-lg border border-white/5 p-2">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <div className="flex flex-wrap gap-2 items-center">
                         <input
                           value={c.name}
                           onChange={(e) => updateCategory(c.id, { name: e.target.value })}
